@@ -14,6 +14,11 @@ body {
 body {
   margin: 0;
   overflow: hidden;
+  background: #101219;
+}
+
+canvas {
+  filter: blur(0.5px);
 }
   </style>
 <body>
@@ -75,7 +80,19 @@ class Curve {
         this.speed = (Math.random() * 0.005) + 0.0005;
         this.randColor = () => {
             const { floor, random } = Math;
-            return ['cyan', 'magenta', 'yellow','red','Green','Blue','orange','purple','Brown','Black'][floor(random() * 10)];
+            const colors = [
+                '#00ffff', // cyan
+                '#ff00ff', // magenta
+                '#ffff00', // yellow
+                '#ff0000', // red
+                '#00ff00', // green
+                '#0000ff', // blue
+                '#ffa500', // orange
+                '#800080', // purple
+                '#a52a2a', // brown
+                '#ffffff'  // white
+            ];
+            return colors[floor(random() * colors.length)];
         };
         this.getEndPoint = () => {
             const { cos, sin } = Math;
@@ -137,7 +154,10 @@ class Burst {
                 save(() => {
                     drawPath(() => {
                         ctx.moveTo(0, 0);
-                        ctx.strokeStyle = 'rgba(80,80,80,0.4)';
+                        ctx.strokeStyle = curve.color;
+                        ctx.lineWidth = 2;
+                        ctx.shadowColor = curve.color;
+                        ctx.shadowBlur = 15;
                         ctx.bezierCurveTo(...startControlPoint, ...endControlPoint, ...end);
                         ctx.stroke();
                     });
@@ -149,8 +169,10 @@ class Burst {
                         xi -= x;
                         yi -= y;
                         ctx.fillStyle = curve.color;
+                        ctx.shadowColor = curve.color;
+                        ctx.shadowBlur = 20;
                         ctx.moveTo(0, 0);
-                        ctx.arc(xi, yi, 4, 0, Math.PI * 2);
+                        ctx.arc(xi, yi, 3, 0, Math.PI * 2);
                         ctx.fill();
                     });
                 });
@@ -172,7 +194,18 @@ class Burst {
             const { curves, x, y } = this;
             clear();
             renderBackground();
+            ctx.globalCompositeOperation = 'lighter';
             renderCurves();
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // Add watermark
+            save(() => {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('Shivam karn', ctx.canvas.width - 20, ctx.canvas.height - 20);
+            });
         };
         this._x = x;
         this._y = y;
